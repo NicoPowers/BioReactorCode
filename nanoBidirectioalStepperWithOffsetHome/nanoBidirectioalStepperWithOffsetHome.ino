@@ -1,5 +1,5 @@
 #include <AccelStepper.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 
 float frequency, period, acceleration, steps, mm = 0.0, stepsToGoBack, newMaxSpeed, distanceFromHome = 0.0, repeatingDistance = 0.0;
 
@@ -11,14 +11,14 @@ String input;
 
 char decision;
 // Define a stepper and the pins it will use
-AccelStepper stepper(1, 4, 7);   // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
-SoftwareSerial mySerial(11, 10); // RX, TX
+AccelStepper stepper(1, 4, 7); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
+//SoftwareSerial mySerial(11, 10); // RX, TX
 
 void setup()
 {
   // Change these to suit your stepper if you want
   Serial.begin(9600);
-  mySerial.begin(9600);
+  //mySerial.begin(9600);
   delay(5000);
   Serial.println("ready...");
   //pinMode(8, OUTPUT);
@@ -32,7 +32,7 @@ void setup()
 void loop()
 {
 
-  while (mySerial.available() == 0)
+  while (Serial.available() == 0)
   {
     if (repeating)
     {
@@ -73,10 +73,10 @@ void loop()
       }
     }
   }
-  if (mySerial.available() > 0)
+  if (Serial.available() > 0)
   {
     //Serial.print("Got data: ");
-    input = mySerial.readString();
+    input = Serial.readString();
     //Serial.println(input);
     decision = input.charAt(0);
 
@@ -85,17 +85,33 @@ void loop()
       repeating = true;
       repeatingDistance = input.substring(1).toFloat();
       goingOut = true;
-      goToLimitSwitch();
+      //goToLimitSwitch();
     }
     else if (decision == 's')
     {
       distanceFromHome = 0.0;
-      mySerial.println("Set this position as 0.");
+      Serial.println("Set this position as 0.");
+    }
+    else if (decision == 'i')
+    {
+      travelInwards(input.substring(1).toFloat());
+    }
+    else if (decision == 'o')
+    {
+      travelOutwards(input.substring(1).toFloat());
     }
     else if (decision == 'f')
     {
       frequency = input.substring(1).toFloat();
       period = getPeriod(frequency);
+    }
+    else if (decision == 'h')
+    {
+      goHome();
+    }
+    else if (decision == 'l')
+    {
+      goToLimitSwitch();
     }
     else if (decision == 'x')
     {
@@ -109,12 +125,12 @@ void loop()
     }
   }
 
-  mySerial.flush();
+  Serial.flush();
 }
 
 float mmToSteps(float mm)
 {
-  return (float)((377.7 * mm) + 275.7); // converts mm to steps, only works for basic lead screw from openbuilds with 1.8 degree per step stepper motor (mySerial # 180815)
+  return (float)((390.55 * mm)); // converts mm to steps, only works for basic lead screw from openbuilds with 1.8 degree per step stepper motor (mySerial # 180815)
 }
 
 float getAcceleration(float steps, float period)
@@ -169,6 +185,17 @@ void travelInwards(float mm)
   distanceFromHome = distanceFromHome + mm;
 }
 
+void goHome()
+{
+  if (distanceFromHome > 0.0)
+  {
+    travelOutwards(distanceFromHome);
+  }
+  else if (distanceFromHome < 0.0)
+  {
+    travelInwards(distanceFromHome);
+  }
+}
 void goToLimitSwitch()
 {
   travelInwards(100);

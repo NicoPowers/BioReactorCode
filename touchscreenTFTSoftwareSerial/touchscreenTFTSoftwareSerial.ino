@@ -316,7 +316,7 @@ void loop(void)
 
 void evalPress(TSPoint p)
 {
-  if ((millis() - lastPressed) >= 500)
+  if ((millis() - lastPressed) >= 200)
   {
     prevPressX = 0;
     prevPressY = 0;

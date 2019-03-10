@@ -87,10 +87,8 @@ void loop()
       goingOut = true;
       goToLimitSwitch();
     }
-    else if (decision == 's')
-    {
+    else if (decision == 's') {
       distanceFromHome = 0.0;
-      mySerial.println("Set this position as 0.");
     }
     else if (decision == 'f')
     {
@@ -169,6 +167,15 @@ void travelInwards(float mm)
   distanceFromHome = distanceFromHome + mm;
 }
 
+void goHome() {
+  if (distanceFromHome > 0.0) {
+    travelOutwards(distanceFromHome);
+  }
+  else if (distanceFromHome < 0.0) {
+    travelInwards(distanceFromHome);
+  }
+
+}
 void goToLimitSwitch()
 {
   travelInwards(100);
