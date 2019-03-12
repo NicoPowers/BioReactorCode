@@ -2,9 +2,13 @@
 
 This repository holds all the software that is needed to build a fully functional and open-source bioreactor device.
 
-The control_megaOverseer.ino code is meant to the run on the mega and is used to control the stretcher and pump on the Nano and vary the hydrostatic pressure on the UNO.
+The **control_megaOverseer.ino** code is meant to the run on the mega and is used to control the stretcher and pump on the Nano and vary the hydrostatic pressure on the UNO.
 
-Below is the cheat sheet for the commands that can be given to both the UNO and the Nano from the Serial Monitor Terminal of the Arduino Mega (this can also be found in the mega code):
+The **control_hydrostaticPressure.ino** code is meant to run on the UNO and is used to control the position of the vial
+
+The **control_stretchCFR.ino** code is meant to run on the Nano and is used to control the stretching of the chamber and the MasterFlex pump
+
+Below is the cheat sheet for the commands that can be given to both the UNO and the Nano from the Serial Monitor Terminal of the Arduino Mega (**this Command Sheet can also be found inside the control_megaOverseer.ino code**):
 
 To send commands to the **Nano**, allow commands must start with a lowercase **"n"** (to signify nano); below are the following commands that you can send to the nano:
 
