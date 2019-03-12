@@ -10,7 +10,7 @@ The **control_stretchCFR.ino** code is meant to run on the Nano and is used to c
 
 Below is the cheat sheet for the commands that can be given to both the UNO and the Nano from the Serial Monitor Terminal of the Arduino Mega (**this Command Sheet can also be found inside the control_megaOverseer.ino code**):
 
-To send commands to the **Nano**, allow commands must start with a lowercase **"n"** (to signify nano); below are the following commands that you can send to the nano:
+To send commands to the **Nano**, all commands must start with a lowercase **"n"** (to signify nano); below are the following commands that you can send to the nano:
 
 - **"ns"** to set the current position as the Home position
 - **"nh"** to return to the home position
@@ -22,7 +22,7 @@ To send commands to the **Nano**, allow commands must start with a lowercase **"
 - **"nx"** to cancel the oscillation and return stretcher to limit switch
 - **"nr%f"** to start oscillation where _%f_ is the repeating distance (in mm) of oscillation
 
-Likewise, to the **UNO**, allow commands must start with a lowercase **"u"** (to signify UNO); below are the following commands that you can send to the UNO:
+Likewise, to the **UNO**, all commands must start with a lowercase **"u"** (to signify UNO); below are the following commands that you can send to the UNO:
 
 - **"ud%f"** to move the vial down a certain distance _%f_ in mm
 - **"uu%f"** to move the vial up a certain distance _%f_ in mm
