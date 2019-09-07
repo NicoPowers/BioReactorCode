@@ -12,7 +12,7 @@ volatile bool repeating = false, goingIn = false, goingOut = false;
 
 String input;
 
-int test;
+int test
 char decision;
 // Define a stepper and the pins it will use
 AccelStepper stepper(1, 4, 7); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
