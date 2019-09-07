@@ -1,7 +1,7 @@
 /* 
 this piece of code is used to calibrate the amount of steps per mm for the bidirectional lead scew assembly
 */
-
+#include <Arduino.h>
 #include <AccelStepper.h>
 
 float frequency, period, acceleration, steps, mm = 0.0, stepsToGoBack, newMaxSpeed, distanceFromHome = 0.0, repeatingDistance = 0.0;
