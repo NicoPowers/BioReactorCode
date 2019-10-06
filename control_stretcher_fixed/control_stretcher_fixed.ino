@@ -12,7 +12,7 @@
   "nr%f" to start oscillation where %f is the repeating distance (in mm) of oscillation
   "np%f" to set the phase of the sinusoidal flow rate
   "ns%f" to set the vertical shift of the sinusoidal flow rate
-  "na%f" to set the amplitude of the sinusoidal flow rate
+  "na%f" to set the steps of the sinusoidal flow rate
 
 
 */
@@ -21,8 +21,21 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <Adafruit_MCP4725.h>
+#include <SPI.h>
+#include "Adafruit_FRAM_SPI.h"
+
+/* Example code for the Adafruit SPI FRAM breakout */
+uint8_t FRAM_CS = 10;
+
+uint8_t FRAM_SCK = 13;
+uint8_t FRAM_MISO = 12;
+uint8_t FRAM_MOSI = 11;
+
+uint16_t          addr = 0;
 
 float frequency, steps, mm = 0.0, repeatingDistance = 0.0, maxFlowRate = 20.0, phase = 0.0, shift = 0.0;
+
+float initialDistance = 2.0; // mm start distance
 
 long unsigned int t_1, t_2, lastHit = 0;
 
@@ -35,9 +48,10 @@ char decision;
 // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 AccelStepper stepper(1, 4, 7);
 
-SoftwareSerial mySerial(10, 11); // RX, TX
+SoftwareSerial mySerial(2, 3); // RX, TX
 
 Adafruit_MCP4725 dac;
+Adafruit_FRAM_SPI fram = Adafruit_FRAM_SPI(FRAM_SCK, FRAM_MISO, FRAM_MOSI, FRAM_CS);
 
 void setup()
 {
@@ -49,17 +63,24 @@ void setup()
   // Begins serial interface for serial monitor and between mega
   Serial.begin(9600);
   mySerial.begin(9600);
+  fram.begin();
 
   // Starts DAC to control MasterFlex Pump flow rate
   dac.begin(0x62);
   setFlowRate(0);
   pinMode(9, INPUT); // pin connected to limit switch
-  stepper.setMaxSpeed(10000);
+  stepper.setMaxSpeed(10000000);
   stepper.setAcceleration(1000);
   delay(2000);
 
   travelInwards(100.0);
-  mySerial.println("Ready.");
+  Serial.println("Ready.");
+  //  stretch(10, 1);
+  //  while (1) {
+  //
+  //  }
+
+
 }
 
 void loop()
@@ -67,6 +88,7 @@ void loop()
 
   while (mySerial.available() == 0)
   {
+
     if (repeating)
     {
       stretch(repeatingDistance, frequency);
@@ -79,8 +101,8 @@ void loop()
 
     if (decision == 'r')
     {
-      travelInwards(100);
-      travelOutwards(1);
+      //travelInwards(100);
+      //travelOutwards(1);
       repeating = true;
       repeatingDistance = input.substring(1).toFloat();
     }
@@ -137,7 +159,7 @@ void setFlowRate(float flowRate)
 // converts mm to steps, only works for bidirectional lead screw
 float getSteps(float mm)
 {
-  return (float)(390.55 * mm);
+  return (float)(390.55 * mm); // 390.55 steps per mm
 }
 
 void travelOutwards(float mm)
@@ -149,6 +171,7 @@ void travelOutwards(float mm)
   {
     stepper.run();
   }
+
 }
 
 void travelInwards(float mm)
@@ -176,30 +199,111 @@ void travelInwards(float mm)
 
 void stretch(float distance, float frequency)
 {
-  long unsigned int t_1, t_2;
-  frequency = frequency / 1000.0;
-  float continuosFrequency = 2.0 * PI * frequency;
-  float period = 1.0 / frequency;
-  float timePerSegment = period / 1000.0;
-  float amplitude = getSteps(distance);
+  long unsigned int t_1, t_2, t_3;
+  float omega = PI * frequency / 1000.0; // rad/ms
+  float period = (1.0 / frequency) * 1000.0; // ms
+  float timeStep = 1; // ms
+
+  float steps = getSteps(distance);
   float stepperSpeed;
   float flowRate;
+  //  Serial.println(frequency, 4);
+  //  Serial.println(omega, 4);
+  //  Serial.println(period, 4);
+  //  Serial.println(timeStep, 4);
+  //  Serial.println(steps, 4);
+  int numSamples = period / timeStep;
+  //Serial.println(numSamples);
+  float stepsPerSample  = (float) steps / numSamples;
+  int midWay = numSamples / 2;
+  int quarterWay = midWay / 2;
+  //Serial.println(numSamples);
+  uint16_t acceleration;
+  float floatAccel, t;
+  addr = 0;
+  for (uint16_t i = 0; i < quarterWay + 1 ; i ++) { // only need to store half the values because the other way is just the same but negative
+    t = (((float)i / (float)numSamples) * period);
+    //Serial.print(t);
+    floatAccel = steps * ((pow(cos((float)omega * t), 2.0)) - pow(sin((float)omega * t), 2.0)); // takes 10 ms to compute
+    acceleration = round(abs(floatAccel));
+    //Serial.println(acceleration);
+    fram.writeEnable(true);
+    fram.write8(addr, highByte(acceleration));
+    fram.writeEnable(false);
+    fram.writeEnable(true);
+    fram.write8(addr + 1, lowByte(acceleration));
+    fram.writeEnable(false);
+    addr ++;
 
-  t_1 = millis();
-  while (millis() - t_1 < period)
-  {
 
-    t_2 = millis();
 
-    stepperSpeed = amplitude * PI * frequency * sin(continuosFrequency * (t_2 - t_1));
-    flowRate = (maxFlowRate * pow(sin((continuosFrequency / 2.0 * (t_2 - t_1)) + phase), 2)) + shift;
-
-    stepper.setSpeed(-stepperSpeed * 1000.0);
-    setFlowRate(flowRate);
-
-    while (millis() - t_2 < timePerSegment)
-    {
-      stepper.runSpeed();
-    }
   }
+  uint16_t currentAcceleration;
+  uint16_t highValue;
+  uint16_t lowValue;
+  addr = 0;
+  for (uint16_t i = 0; i < quarterWay ; i ++) {
+    highValue = fram.read8(addr);
+    lowValue = fram.read8(addr + 1);
+    highValue <<= 8;
+    currentAcceleration = highValue | lowValue;
+    stepper.setAcceleration(currentAcceleration * 1000);
+    stepper.setCurrentPosition(0);
+    stepper.moveTo(-stepsPerSample);
+    while (stepper.distanceToGo() < 0)
+    {
+      stepper.run();
+    }
+    addr ++;
+  }
+
+  for (uint16_t i = 0; i < quarterWay ; i ++) {
+    highValue = fram.read8(addr - 1);
+    lowValue = fram.read8(addr);
+    highValue <<= 8;
+    currentAcceleration = highValue | lowValue;
+    stepper.setAcceleration(-currentAcceleration * 1000);
+    stepper.setCurrentPosition(0);
+    stepper.moveTo(-stepsPerSample);
+    while (stepper.distanceToGo() < 0)
+    {
+      stepper.run();
+    }
+    addr --;
+  }
+
+  for (uint16_t i = 0; i < quarterWay ; i ++) {
+    highValue = fram.read8(addr);
+    lowValue = fram.read8(addr + 1);
+    highValue <<= 8;
+    currentAcceleration = highValue | lowValue;
+    stepper.setAcceleration(currentAcceleration * 1000);
+    stepper.setCurrentPosition(0);
+    stepper.moveTo(stepsPerSample);
+    while (stepper.distanceToGo() > 0)
+    {
+      stepper.run();
+    }
+    addr ++;
+  }
+
+  for (uint16_t i = 0; i < quarterWay ; i ++) {
+    highValue = fram.read8(addr - 1);
+    lowValue = fram.read8(addr);
+    highValue <<= 8;
+    currentAcceleration = highValue | lowValue;
+    stepper.setAcceleration(-currentAcceleration * 1000);
+    stepper.setCurrentPosition(0);
+    stepper.moveTo(stepsPerSample);
+    while (stepper.distanceToGo() > 0)
+    {
+      stepper.run();
+    }
+    addr --;
+  }
+
+
+
+
+
 }

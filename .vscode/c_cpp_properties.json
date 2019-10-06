@@ -1,14 +1,14 @@
 {
-    
     "configurations": [
         {
             "name": "Win32",
             "includePath": [
+                "C:\\Program Files (x86)\\Arduino\\tools\\**",
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\**",
                 "${workspaceFolder}/**"
-
             ],
             "browse": {
-                "path": [                 
+                "path": [
                     "C:\\Program Files (x86)\\Arduino\\hardware",
                     "C:\\Program Files (x86)\\Arduino\\libraries",
                     "C:\\Users\\nicol\\Documents\\Arduino\\libraries",
@@ -16,9 +16,11 @@
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true
-                
             },
-            "intelliSenseMode": "msvc-x64"
+            "intelliSenseMode": "msvc-x64",
+            "forcedInclude": [
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
+            ]
         }
     ],
     "version": 4
