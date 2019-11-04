@@ -1,13 +1,13 @@
 f = 1; % Hz
-distance = 10; % mm
-period = (1/f)*1000; % ms
-stepRes = 10; %ms
-t = round(0:stepRes:period);
+period = (1/f); % s
+numSteps = 100; 
+timePerStep = period/numSteps;
+t = 0:timePerStep:period/2;
 steps = 3905.5;
-omega = pi*f/1000; %rad/ms
+omega = pi*f; %rad/s
 pos = round(steps*sin(omega*t).^2);
 speed = round(steps*sin(omega.*t).*cos(omega.*t));
-acceleration = (round(steps*((cos(omega.*t).^2) - (sin(omega.*t).^2))));
+acceleration = abs(round(steps*((cos(omega.*t).^2) - (sin(omega.*t).^2))));
 figure;
 hold on;
 plot(t, pos);
