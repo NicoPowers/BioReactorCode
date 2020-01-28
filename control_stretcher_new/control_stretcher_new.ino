@@ -2,6 +2,7 @@
 
   The commands that can be given to the nano from the mega (control_megaOverseer.ino) include:
 
+
   "ns" to set the current position as the Home position
   "nf%f" to set the frequency for the oscillation where %f is the value you want to set it to
   "no%d" to move outwards a distance %f
