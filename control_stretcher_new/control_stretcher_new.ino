@@ -1,9 +1,6 @@
 /* This code controls the bidirectional stepper and the MasterFlex Pump at a constant flow rate
-
   The commands that can be given to the nano from the mega (control_megaOverseer.ino) include:
-
-
-  "ns" to set the current position as the Home position
+  "nd%f" to set the initial displacement
   "nf%f" to set the frequency for the oscillation where %f is the value you want to set it to
   "no%d" to move outwards a distance %f
   "ni%f" to move inwards a distance %f
@@ -14,8 +11,6 @@
   "np%f" to set the phase of the sinusoidal flow rate
   "ns%f" to set the vertical shift of the sinusoidal flow rate
   "na%f" to set the steps of the sinusoidal flow rate
-
-
   This does 1 Hz Frequency only at the following distances:
   5% Strain:
   1 mm
@@ -23,8 +18,7 @@
   1.50 mm
   1.75 mm
   2.0 mm
-
-  10% Strain:
+  10% Strain: (enter as half distance)
   7 mm
   7.25 mm
   7.5 mm
@@ -46,14 +40,14 @@ uint8_t FRAM_SCK = 13;
 uint8_t FRAM_MISO = 12;
 uint8_t FRAM_MOSI = 11;
 
-uint16_t          addr = 0;
+uint16_t addr = 0;
 // 1, 1.25, 1.5, 1.75
-float stretchingDistances[10]               = {1.0, 1.25, 1.50, 1.75, 2.00, 7.00, 7.25, 7.50, 7.75, 8.00};
-float stretchingSpeedConstants[10]          = {1.0, 1.00, 1.00, 1.00, 1.00, 500.00, 1.00, 1.00, 1.00, 1.00};
-float stretchingAccelerationConstants[10]   = {7.3, 7.46, 7.55, 7.52, 7.58, 100.00, 1.00, 1.00, 1.00, 1.00};
+float stretchingDistances[10] = {1.0, 1.25, 1.50, 1.75, 2.00, 7.00, 7.25, 7.50, 7.75, 8.00};
+float stretchingSpeedConstants[10] = {1.0, 1.00, 1.00, 1.00, 1.00, 500.00, 1.00, 1.00, 1.00, 1.00};
+float stretchingAccelerationConstants[10] = {7.3, 7.46, 7.55, 7.52, 7.58, 100.00, 1.00, 1.00, 1.00, 1.00};
 
-float frequency, steps, mm = 0.0, repeatingDistance = 0.0, maxFlowRate = 20.0, phase = 0.0, shift = 0.0;
-
+float steps, mm = 0.0, repeatingDistance = 0.0, maxFlowRate = 20.0, phase = 0.0, shift = 0.0;
+float frequency = 0.5;
 
 float initialDistance = 2.0; // mm start distance
 
@@ -95,15 +89,8 @@ void setup()
   delay(2000);
 
   travelInwards(100.0);
+  travelOutwards(initialDistance);
   Serial.println("Ready.");
-  while (1) {
-    stretch(4, 1);
-    //    delay(5000);
-  }
-
-
-
-
 }
 
 void loop()
@@ -124,8 +111,8 @@ void loop()
 
     if (decision == 'r')
     {
-      //travelInwards(100);
-      //travelOutwards(1);
+      travelInwards(100);
+      travelOutwards(initialDistance);
       repeating = true;
       repeatingDistance = input.substring(1).toFloat();
     }
@@ -149,6 +136,13 @@ void loop()
     {
       travelOutwards(input.substring(1).toFloat());
     }
+    else if (decision == 'd')
+    {
+      repeating = false;
+      initialDistance = input.substring(1).toFloat();
+      travelInwards(100.0);
+      travelOutwards(initialDistance);
+    }
     else if (decision == 'i')
     {
       travelInwards(input.substring(1).toFloat());
@@ -165,6 +159,8 @@ void loop()
     }
     else if (decision == 'x')
     {
+      travelInwards(100);
+      travelOutwards(initialDistance);
       repeating = false;
     }
   }
@@ -194,7 +190,6 @@ void travelOutwards(float mm)
   {
     stepper.run();
   }
-
 }
 
 void travelInwards(float mm)
@@ -223,7 +218,6 @@ void travelInwards(float mm)
 void stretch(int stretchIndex, float frequency)
 {
 
-
   float period = (1.0 / frequency); // s
 
   float steps = getSteps(stretchingDistances[stretchIndex]);
@@ -243,24 +237,23 @@ void stretch(int stretchIndex, float frequency)
   float maxError = 0.0;
   float k = 0.0;
 
-
   t0 = millis();
   stepper.setAcceleration(stretchingAccelerationConstants[stretchIndex] * averageAcceleration);
-  stepper.setSpeed(stretchingSpeedConstants[stretchIndex]*averageSpeed);
+  stepper.setSpeed(stretchingSpeedConstants[stretchIndex] * averageSpeed);
   stepper.move(-round(steps)); // move outwards
 
-  while (stepper.distanceToGo() < -1) {
+  while (stepper.distanceToGo() < -1)
+  {
     stepper.run();
   }
 
   stepper.move(round(steps)); // move back inwards (1 period of oscillation)
 
-  while (stepper.distanceToGo() > 1) {
+  while (stepper.distanceToGo() > 1)
+  {
     stepper.run();
   }
   t1 = millis();
 
-
-  Serial.println(t1-t0);
-
+  Serial.println(t1 - t0);
 }
