@@ -4,6 +4,7 @@
 #include <AccelStepper.h>
 #include <SoftwareSerial.h>
 #include <Adafruit_MCP4725.h>
+#define DAC_NOISE_OFFSET 0
 #define LIMIT_SWITCH 2
 #define PUMP_POWER A1
 #define SS_RX 10
@@ -135,7 +136,7 @@ void loop()
 // sets the desired flow rate to the pump
 void setFlowRate(float flowRate)
 {
-  float voltage = (float)(flowRate / 80.0) * 4095;
+  float voltage = ((float)(flowRate / 80.0) * 4095) + DAC_NOISE_OFFSET;
   dac.setVoltage(voltage, false);
 }
 
@@ -212,4 +213,13 @@ void travelUp(float mm)
 
 void sinusoidFlowRate()
 {
+  int numSteps = 100;
+  float timePerStep = 1.0 / numSteps; // time per step in seconds
+  float timeDelay = timePerStep / 1000.0;
+  for (int i = 0; i++; i < numSteps)
+  {
+    float currentFlowRate = shift + (maxFlowRate * pow(sin(PI * (i * timePerStep) + phase), 2));
+    setFlowRate(currentFlowRate);
+    delay(timeDelay);
+  }
 }

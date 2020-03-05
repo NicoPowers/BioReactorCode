@@ -75,6 +75,7 @@ void setup()
   travelOutwards(initialDistance);
 
   pinMode(SYNC_START, OUTPUT); // TODO: CHANGE IN HARDWARE
+  digitalWrite(SYNC_START, LOW);
 
   Serial.println("*NANO STRETCH CONTROL READY*");
 }
@@ -241,10 +242,6 @@ void sinusoidalStretch(int stretchIndex, int withPump)
     digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
     delay(SYNC_PROPAGATION_MS);     // delay in case stepper starts too soon before pump
   }
-  else
-  {
-    digitalWrite(SYNC_START, LOW);
-  }
 
   t0 = millis();
   while (stepper.distanceToGo() < -1)
@@ -259,6 +256,12 @@ void sinusoidalStretch(int stretchIndex, int withPump)
     stepper.run();
   }
   t1 = millis();
+
+  if (withPump == 1)
+  {
+    digitalWrite(SYNC_START, LOW); // Tell UNO to start the pump in sync with stretching
+    delay(SYNC_PROPAGATION_MS);    // delay in case stepper starts too soon before pump
+  }
 
   mySerial.print("NANO: Finished stretching with a period of ");
   mySerial.print(t1 - t0);
