@@ -7,7 +7,8 @@
   "nq" to toggle the state of the MasterFlex Pump
   "ne%f" to set the flow rate for the MasterFlex Pump, where %f ranges from 0 to 80
   "nx" to cancel the oscillation and return stretcher to limit switch
-  "nr%f" to start oscillation where %f is the repeating distance (in mm) of oscillation
+  "nr1%f" to start oscillation where %f is the repeating distance (in mm) of oscillation with the sinusoidal pump flow
+  "nr0%f" to start oscillation where %f is the repeating distance (in mm) of oscillation without the sinusoidal pump flow
   "np%f" to set the phase of the sinusoidal flow rate
   "ns%f" to set the vertical shift of the sinusoidal flow rate
   "na%f" to set the steps of the sinusoidal flow rate
@@ -74,10 +75,10 @@ void setup()
   hitLimitSwitch();
   travelOutwards(initialDistance);
 
-  pinMode(SYNC_START, OUTPUT); // TODO: CHANGE IN HARDWARE
-  digitalWrite(SYNC_START, LOW);
+  pinMode(SYNC_START, OUTPUT);   // TODO: CHANGE IN HARDWARE
+  digitalWrite(SYNC_START, LOW); // start sync start low so pump does not start with sinusoidal flow rate
 
-  Serial.println("*NANO STRETCH CONTROL READY*");
+  Serial.println("NANO: Stretching ready ...");
 }
 
 void loop()
@@ -102,7 +103,7 @@ void loop()
       hitLimitSwitch();
       travelOutwards(initialDistance);
       repeating = true;
-      stretchIndex = input.substring(1).toInt();
+      stretchIndex = input.substring(1, 2).toInt();
       withPump = input.substring(2).toInt();
       mySerial.print("NANO: Starting to stretch distance of ");
       mySerial.print(stretchingDistances[stretchIndex]);
