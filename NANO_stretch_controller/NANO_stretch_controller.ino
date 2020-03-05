@@ -229,7 +229,7 @@ void sinusoidalStretch(int stretchIndex)
   float period = 1; // can only do 1 Hz properly
 
   float steps = getSteps(stretchingDistances[stretchIndex]);
-  float distanceToStretch = stretchingDistances[stretchIndex]
+  float distanceToStretch = stretchingDistances[stretchIndex];
   float averageSpeed = 2 * (steps / period);
   float averageAcceleration = averageSpeed / period;
 
