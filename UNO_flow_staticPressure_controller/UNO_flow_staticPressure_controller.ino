@@ -32,10 +32,14 @@
 #define SYNC_START 15 // TODO: CHANE IN HARDWARE
 
 float frequency, period, acceleration, steps, mm, stepsToGoBack, newMaxSpeed, distanceFromHome = 0.0;
-float maxFlowRate = 40.0, phase = 0.0, shift = 0.0;
+float maxFlowRate = 40.0, phase = 0.0, shift = 0.0, phaseInRad = phase * DEG_TO_RAD;
 long int t_1, t_2, lastHit = 0;
 
 volatile bool pumpOn = false, manualFlowRate = false;
+
+int numSteps = 100;
+float timePerStep = 1.0 / numSteps; // time per step in seconds
+float timeDelay = timePerStep / 1000.0;
 
 String input;
 
@@ -122,6 +126,7 @@ void loop()
     else if (decision == 'p')
     {
       phase = input.substring(1).toFloat();
+      phaseInRad = phase * DEG_TO_RAD;
       mySerial.print("UNO: New phase of flow rate = ");
       mySerial.print(phase);
       mySerial.println(" degrees");
@@ -246,10 +251,8 @@ void travelUp(float mm)
 
 void sinusoidalFlowRate()
 {
-  int numSteps = 100;
-  float timePerStep = 1.0 / numSteps; // time per step in seconds
-  float timeDelay = timePerStep / 1000.0;
-  float phaseInRad = phase * DEG_TO_RAD;
+  /* The following sinusoidal flow rate is designed to ONLY work at 1 Hz since only 1 Hz stretching
+    works with the current stepper motor*/
   for (int i = 0; i++; i < numSteps)
   {
     float currentFlowRate = shift + (maxFlowRate * pow(sin(PI * (float)(i * timePerStep) + phaseInRad), 2));
