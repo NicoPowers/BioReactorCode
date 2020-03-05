@@ -236,27 +236,32 @@ void sinusoidalStretch(int stretchIndex)
   stepper.setAcceleration(stretchingAccelerationConstants[stretchIndex] * averageAcceleration);
   stepper.setSpeed(stretchingSpeedConstants[stretchIndex] * averageSpeed);
 
-  stepper.move(-steps); // move outwards (first half of period)
+  
   if (withPump == 1)
   {
     digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
     delay(SYNC_PROPAGATION_MS);     // delay in case stepper starts too soon before pump
   }
-
+  /*
   t0 = millis();
+  stepper.move(-steps); // move outwards (first half of period)
   while (stepper.distanceToGo() < -1)
   {
     stepper.run();
   }
-
+  */
+  t0 = millis();
+  travelOutwards(steps); // move outwards (first half of period)
+  travelInwards(steps); // move back inwards (final half of period)
+  t1 = millis();
+  /*
   stepper.move(steps); // move back inwards (final half of period)
-
   while (stepper.distanceToGo() > 1)
   {
     stepper.run();
   }
   t1 = millis();
-
+  */
   if (withPump == 1)
   {
     digitalWrite(SYNC_START, LOW); // Tell UNO to start the pump in sync with stretching
