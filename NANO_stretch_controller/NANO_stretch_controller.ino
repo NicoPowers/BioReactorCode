@@ -110,9 +110,6 @@ void loop()
       mySerial.print("NANO: Starting to stretch distance of ");
       mySerial.print(stretchingDistances[stretchIndex]);
       mySerial.println(" mm");
-      mySerial.print("With a frequency of ");
-      mySerial.print(frequency);
-      mySerial.println(" Hz");
     }
     // **** command to move outwards
     else if (decision == 'o') // travel outwards a certain distance
