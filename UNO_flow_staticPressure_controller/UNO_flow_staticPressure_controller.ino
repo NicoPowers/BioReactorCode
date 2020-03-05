@@ -25,7 +25,6 @@
 #include <SoftwareSerial.h>
 #include <Adafruit_MCP4725.h>
 #define DAC_NOISE_OFFSET 0 // TODO: FIGURE OUT OFFSET
-#define DEG_TO_RAD ‭ 0.01745329251994329576923690768489‬
 #define LIMIT_SWITCH 2
 #define PUMP_POWER A1
 #define SS_RX 10
@@ -167,7 +166,7 @@ void loop()
     else if (decision == 'r')
     {
       manualFlowRate = false;
-      mySerial.println("UNO: Manual flow rate disabled, waiting for NANO...")
+      mySerial.println("UNO: Manual flow rate disabled, waiting for NANO...");
     }
     else
     {
