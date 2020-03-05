@@ -14,7 +14,7 @@ float frequency, period, acceleration, steps, mm, stepsToGoBack, newMaxSpeed, di
 float maxFlowRate = 20.0, phase = 0.0, shift = 0.0;
 long int t_1, t_2, lastHit = 0;
 
-volatile bool pumpOn = false;
+volatile bool pumpOn = false, sinusodialFlow = false;
 
 String input;
 
@@ -58,52 +58,66 @@ void loop()
 
   while (mySerial.available() == 0)
   {
+    if (digitalRead(SYNC_START) == HIGH)
+    {
+      sinusodialFlow = true;
+    }
   }
   if (mySerial.available() > 0)
   {
     input = mySerial.readString();
     decision = input.charAt(0);
+    // **** command to move the water vial upwards
     if (decision == 'u')
     {
       mm = input.substring(1).toFloat();
       travelUp(mm);
     }
+    // **** command to move the water vial downwards
     else if (decision == 'd')
     {
       mm = input.substring(1).toFloat();
       travelDown(mm);
     }
+    // **** command to return to the home position for the water vial
     else if (decision == 'h')
     {
       goHome();
     }
+    // **** command to toggle the pump
     else if (decision == 'q')
     {
       pumpOn = !pumpOn;
       digitalWrite(PUMP_POWER, pumpOn);
       digitalWrite(PUMP_POWER, !pumpOn);
     }
+    // **** command to change the phase of the sinusoidal flow rate
     else if (decision == 'p')
     {
       phase = input.substring(1).toFloat();
     }
+    // **** command to change the vertical shift of the sinusoidal flow rate
     else if (decision == 's')
     {
       shift = input.substring(1).toFloat();
     }
+    // **** command to change the amplitude (max flow rate) of the sinusoidal flow rate
     else if (decision == 'a')
     {
       maxFlowRate = input.substring(1).toFloat();
     }
+    // **** command to manually set the flow rate
     else if (decision == 'e')
     {
       setFlowRate(input.substring(1).toFloat());
     }
+    // **** command to set current position of water vial to home position
     else if (decision == 'x')
     {
       distanceFromHome = 0.0;
       mySerial.println("UNO: Set this position as 0.");
     }
+    // **** command to return the current distance from home position
     else if (decision == 'c')
     {
       mySerial.print("UNO: Distance from home = ");
@@ -194,4 +208,8 @@ void travelUp(float mm)
   }
 
   distanceFromHome = distanceFromHome + mm;
+}
+
+void sinusoidFlowRate()
+{
 }

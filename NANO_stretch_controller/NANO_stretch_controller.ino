@@ -41,7 +41,7 @@ float stretchingDistances[10] = {1.0, 1.25, 1.50, 1.75, 2.00, 7.00, 7.25, 7.50, 
 float stretchingSpeedConstants[10] = {1.0, 1.00, 1.00, 1.00, 1.00, 500.00, 1.00, 1.00, 1.00, 1.00};
 float stretchingAccelerationConstants[10] = {7.3, 7.46, 7.55, 7.52, 7.58, 100.00, 1.00, 1.00, 1.00, 1.00};
 
-int stretchIndex = 0;
+int stretchIndex = 0, withPump = 0;
 float steps, frequency = 1;
 
 float initialDistance = 2.0; // mm start distance in between plates
@@ -87,7 +87,7 @@ void loop()
 
     if (repeating)
     {
-      stretch(repeatingDistance, frequency);
+      sinusoidalStretch(repeatingDistance);
     }
   }
   if (mySerial.available() > 0)
@@ -95,12 +95,14 @@ void loop()
     input = mySerial.readString();
     decision = input.charAt(0);
 
+    // **** command to start stretching
     if (decision == 'r')
     {
       hitLimitSwitch();
       travelOutwards(initialDistance);
       repeating = true;
       stretchIndex = input.substring(1).toInt();
+      withPump = input.substring(2).toInt();
       mySerial.print("NANO: Starting to stretch distance of ");
       mySerial.print(stretchingDistances[stretchIndex]);
       mySerial.println(" mm");
@@ -108,14 +110,7 @@ void loop()
       mySerial.print(frequency);
       mySerial.println(" Hz");
     }
-
-    // else if (decision == 'f') // change stretching frequency
-    // {
-    //   frequency = input.substring(1).toFloat();
-    //   mySerial.print("NANO: New stretching frequency = ");
-    //   mySerial.print(frequency);
-    //   mySerial.println(" mm");
-    // }
+    // **** command to move outwards
     else if (decision == 'o') // travel outwards a certain distance
     {
       float outDistance = input.substring(1).toFloat();
@@ -124,6 +119,7 @@ void loop()
       mySerial.print(outDistance);
       mySerial.println(" mm");
     }
+    // **** command to change the initial displacment between the plates
     else if (decision == 'd') // change the initial displacement between plates
     {
       initialDistance = input.substring(1).toFloat();
@@ -131,6 +127,7 @@ void loop()
       mySerial.print(initialDistance);
       mySerial.println(" mm");
     }
+    // **** command to move inwards
     else if (decision == 'i')
     {
       float inDistance = input.substring(1).toFloat();
@@ -139,6 +136,7 @@ void loop()
       mySerial.print(inDistance);
       mySerial.println(" mm");
     }
+    // **** command to stop the stretching, must also stop the pump if it is on
     else if (decision == 'x')
     {
       hitLimitSwitch();
@@ -222,7 +220,7 @@ void travelInwards(float mm)
   }
 }
 
-void stretch(int stretchIndex)
+void sinusoidalStretch(int stretchIndex, int withPump)
 {
 
   float period = 1; // can only do 1 Hz properly
@@ -238,9 +236,15 @@ void stretch(int stretchIndex)
   stepper.setSpeed(stretchingSpeedConstants[stretchIndex] * averageSpeed);
 
   stepper.move(-steps); // move outwards (first half of period)
-
-  digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
-  delay(SYNC_PROPAGATION_MS);     // delay in case stepper starts too soon before pump
+  if (withPump == 1)
+  {
+    digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
+    delay(SYNC_PROPAGATION_MS);     // delay in case stepper starts too soon before pump
+  }
+  else
+  {
+    digitalWrite(SYNC_START, LOW);
+  }
 
   t0 = millis();
   while (stepper.distanceToGo() < -1)
