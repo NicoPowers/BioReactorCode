@@ -1,10 +1,10 @@
-/* 
-Authors: Nicolas Montoya
-Credits: Bryan James
-Status: Prototype
-This code is ran on the Mega and is meant to control the Nano and the UNO; which allows you to control the MasterFlex Pump, stretcher, and hydrostatic pressure vial
+/*
+  Authors: Nicolas Montoya
+  Credits: Bryan James
+  Status: Prototype
+  This code is ran on the Mega and is meant to control the Nano and the UNO; which allows you to control the MasterFlex Pump, stretcher, and hydrostatic pressure vial
 
-To send commands to the Nano, allow commands must start with a lowercase "n" (to signify nano); below are the following commands that you can send to the nano:
+  To send commands to the Nano, allow commands must start with a lowercase "n" (to signify nano); below are the following commands that you can send to the nano:
 
   "nd%f" to set the initial displacement
   "nf%f" to set the frequency for the oscillation where %f is the value you want to set it to
@@ -15,9 +15,9 @@ To send commands to the Nano, allow commands must start with a lowercase "n" (to
   "nx" to cancel the oscillation and return stretcher to limit switch
   "nr1%i" to start oscillation where %i is the repeating distance index (integer) of oscillation with the sinusoidal pump flow
   "nr0%i" to start oscillation where %f is the repeating distance index (integer) of oscillation without the sinusoidal pump flow
-  REPEATING DISTANCES ALLOWED AT 1 HZ:
-  [1.0, 1.25, 1.50, 1.75, 2.00, 7.00, 7.25, 7.50, 7.75, 8.00]
-    0     1     2     3     4     5     6     7     8     9
+  REPEATING DISTANCES:
+  [1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.25, 7.5, 7.75, 8.0]
+    0     1     2     3     4   5   6     7     8    9
 
   This does 1 Hz Frequency only at the following distances:
   5% Strain:
@@ -26,6 +26,7 @@ To send commands to the Nano, allow commands must start with a lowercase "n" (to
   1.50 mm
   1.75 mm
   2.0 mm
+  The following distances are less than 1 Hz
   10% Strain:
   7 mm
   7.25 mm
@@ -33,22 +34,21 @@ To send commands to the Nano, allow commands must start with a lowercase "n" (to
   7.75 mm
   8.0 mm
 
-Likewise, for the UNO, all commands must start with a lowercase "u"(to signify UNO);
-below are the following commands that you can send to the UNO :
+  Likewise, for the UNO, all commands must start with a lowercase "u"(to signify UNO);
+  below are the following commands that you can send to the UNO :
 
-"ud%f" to move the vial down a certain distance %f in mm
-"uu%f" to move the vial up a certain distance %f in mm
-"uh" to move back to the home position
-"us" to set the current position as the home position
-"uq" to toggle the state of the MasterFlex pump
-"uc" to check the current distance from the home position
-"ux" to set the current position of the water vial as the home position
-"ua%f" to set the phase of the sinusoidal flow rate
-"up%f" to set the phase of the sinusoidal flow rate
-"us%f" to set the vertical shift of the sinusoidal flow rate
-"ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
-"ue%f" to set the manual (constant) flow rate (disables sinusoidal flow rate)
-"ue%f" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
+  "ud%f" to move the vial down a certain distance %f in mm
+  "uu%f" to move the vial up a certain distance %f in mm
+  "uh" to move back to the home position
+  "us" to set the current position as the home position
+  "uq" to toggle the state of the MasterFlex pump
+  "uc" to check the current distance from the home position
+  "ux" to set the current position of the water vial as the home position
+  "up%f" to set the phase of the sinusoidal flow rate
+  "us%f" to set the vertical shift of the sinusoidal flow rate
+  "ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
+  "ue%f" to set the manual (constant) flow rate (disables sinusoidal flow rate)
+  "ur" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
         sinusoidal flow rate, disables manual flow rate)
 
 
@@ -75,6 +75,9 @@ void setup()
   Serial.begin(9600);
   Serial1.begin(9600); // serial connection to UNO
   Serial2.begin(9600); // serial connection to nano
+  Serial.println("MEGA: Ready...");
+  Serial.flush();
+  delay(500);
 }
 
 void loop()
@@ -82,38 +85,49 @@ void loop()
 
   // while user has not sent a command to the NANO or UNO, check to see if
   // message received from UNO or NANO
-  while (Serial.available() == 0)
+  if (Serial.available() == 0)
   {
     // check to see if received message from UNO
-    if (Serial1.available() > 0)
+    if ((Serial1.available() > 0) && Serial2.available() == 0)
     {
       Serial.println(Serial1.readString());
+      Serial.flush();
+      while (Serial1.available()) {
+        Serial1.read();
+      }
     }
     // check to see if received message from NANO
-    if (Serial2.available() > 0)
+    else if ((Serial2.available() > 0) && Serial1.available() == 0)
     {
       Serial.println(Serial2.readString());
+      Serial.flush();
+      while (Serial2.available()) {
+        Serial2.read();
+      }
     }
   }
 
   // if user is going to send command to either the UNO or NANO
-  if (Serial.available() > 0)
+  else if (Serial.available() > 0)
   {
     input = Serial.readString();
     decision = input.charAt(0);
     if (decision == 'n')
     {
       Serial2.println(input.substring(1));
+      Serial2.flush();
     }
     else if (decision == 'u')
     {
       Serial1.println(input.substring(1));
+      Serial1.flush();
     }
+    while (Serial.available()) {
+        Serial.read();
+      }
   }
 
-  Serial.flush();
-  Serial1.flush();
-  Serial2.flush();
+
 }
 
 // void readSensor()
