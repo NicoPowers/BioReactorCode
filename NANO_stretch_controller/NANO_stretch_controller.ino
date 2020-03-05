@@ -196,6 +196,7 @@ void hitLimitSwitch()
       stepper.run();
     }
   }
+  lastHit = 0;
 }
 
 void travelInwards(float mm)
@@ -219,6 +220,7 @@ void travelInwards(float mm)
       stepper.run();
     }
   }
+  lastHit = 0;
 }
 
 void sinusoidalStretch(int stretchIndex)
@@ -227,7 +229,7 @@ void sinusoidalStretch(int stretchIndex)
   float period = 1; // can only do 1 Hz properly
 
   float steps = getSteps(stretchingDistances[stretchIndex]);
-
+  float distanceToStretch = stretchingDistances[stretchIndex]
   float averageSpeed = 2 * (steps / period);
   float averageAcceleration = averageSpeed / period;
 
@@ -251,8 +253,8 @@ void sinusoidalStretch(int stretchIndex)
   }
   */
   t0 = millis();
-  travelOutwards(steps); // move outwards (first half of period)
-  travelInwards(steps); // move back inwards (final half of period)
+  travelOutwards(distanceToStretch); // move outwards (first half of period)
+  travelInwards(distanceToStretch); // move back inwards (final half of period)
   t1 = millis();
   /*
   stepper.move(steps); // move back inwards (final half of period)
