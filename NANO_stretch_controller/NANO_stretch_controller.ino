@@ -242,7 +242,7 @@ void sinusoidalStretch(int stretchIndex)
   if (withPump == 1)
   {
     digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
-    delay(SYNC_PROPAGATION_MS);     // delay in case stepper starts too soon before pump
+    delay(SYNC_PROPAGATION_MS);     // delay, in ms, if stepper starts too soon before pump
   }
   /*
   t0 = millis();
@@ -266,8 +266,7 @@ void sinusoidalStretch(int stretchIndex)
   */
   if (withPump == 1)
   {
-    digitalWrite(SYNC_START, LOW); // Tell UNO to start the pump in sync with stretching
-    delay(SYNC_PROPAGATION_MS);    // delay in case stepper starts too soon before pump
+    digitalWrite(SYNC_START, LOW); // Tell UNO to stop the pump 
   }
 
   mySerial.print("NANO: Finished stretching with a period of ");
