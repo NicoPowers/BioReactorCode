@@ -91,7 +91,7 @@ void loop()
 
     if (repeating)
     {
-      sinusoidalStretch(repeatingDistance);
+      sinusoidalStretch(stretchIndex);
     }
   }
   if (mySerial.available() > 0)
@@ -224,7 +224,7 @@ void travelInwards(float mm)
   }
 }
 
-void sinusoidalStretch(int stretchIndex, int withPump)
+void sinusoidalStretch(int stretchIndex)
 {
 
   float period = 1; // can only do 1 Hz properly
