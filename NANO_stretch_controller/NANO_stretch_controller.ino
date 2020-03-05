@@ -1,5 +1,9 @@
-/* This code controls the bidirectional stepper and the MasterFlex Pump at a constant flow rate
-  The commands that can be given to the nano from the mega (control_megaOverseer.ino) include:
+/*
+  Authors: Nicolas Montoya
+  Credits: Bryan James
+  Status: Prototype
+  This code is uploaded to the NANO, and controls the bidirectional stepper in a sinusoidal fashion
+  The commands that can be given to the nano from the MEGA include:
   "nd%f" to set the initial displacement
   "nf%f" to set the frequency for the oscillation where %f is the value you want to set it to
   "no%d" to move outwards a distance %f
@@ -9,9 +13,7 @@
   "nx" to cancel the oscillation and return stretcher to limit switch
   "nr1%f" to start oscillation where %f is the repeating distance (in mm) of oscillation with the sinusoidal pump flow
   "nr0%f" to start oscillation where %f is the repeating distance (in mm) of oscillation without the sinusoidal pump flow
-  "np%f" to set the phase of the sinusoidal flow rate
-  "ns%f" to set the vertical shift of the sinusoidal flow rate
-  "na%f" to set the steps of the sinusoidal flow rate
+
   This does 1 Hz Frequency only at the following distances:
   5% Strain:
   1 mm

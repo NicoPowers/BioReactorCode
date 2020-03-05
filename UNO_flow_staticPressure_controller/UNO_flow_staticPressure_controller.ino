@@ -1,5 +1,25 @@
-/* This code controls the vertical displacement of the water vial to vary the hydrostatic pressure
-
+/*
+  Authors: Nicolas Montoya
+  Credits: Bryan James
+  Status: Prototype
+  This code controls the vertical displacement of the water vial to vary the hydrostatic pressure,
+  and controls the MasterFlex pump with a constant flow rate or a sinusoidal flow rate
+  in sync with the NANO stretching
+  
+  "ud%f" to move the vial down a certain distance %f in mm
+  "uu%f" to move the vial up a certain distance %f in mm
+  "uh" to move back to the home position
+  "us" to set the current position as the home position
+  "uq" to toggle the state of the MasterFlex pump
+  "uc" to check the current distance from the home position
+  "ux" to set the current position of the water vial as the home position
+  "ua%f" to set the phase of the sinusoidal flow rate
+  "up%f" to set the phase of the sinusoidal flow rate
+  "us%f" to set the vertical shift of the sinusoidal flow rate
+  "ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
+  "ue%f" to set the manual (constant) flow rate (disables sinusoidal flow rate)
+  "ue%f" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
+          sinusoidal flow rate, disables manual flow rate)
 */
 #include <AccelStepper.h>
 #include <SoftwareSerial.h>
