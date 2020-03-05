@@ -1,23 +1,47 @@
+/* This code controls the vertical displacement of the water vial to vary the hydrostatic pressure
+
+*/
 #include <AccelStepper.h>
 #include <SoftwareSerial.h>
+#include <Adafruit_MCP4725.h>
+#define LIMIT_SWITCH 2
+#define PUMP_POWER A1
+#define SS_RX 10
+#define SS_TX 11
+#define SYNC_START 15 // TODO: CHANE IN HARDWARE
 
 float frequency, period, acceleration, steps, mm, stepsToGoBack, newMaxSpeed, distanceFromHome = 0.0;
-
+float maxFlowRate = 20.0, phase = 0.0, shift = 0.0;
 long int t_1, t_2, lastHit = 0;
+
+volatile bool pumpOn = false;
 
 String input;
 
 char decision;
 // Define a stepper and the pins it will use
 AccelStepper stepper(1, 4, 7); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5SoftwareSerial mySerial(11, 10); // RX, TX
-SoftwareSerial mySerial(10, 11);
+SoftwareSerial mySerial(SS_RX, SS_TX);
+
+Adafruit_MCP4725 dac;
 
 void setup()
 {
-  // Change these to suit your stepper if you want
+  // Sets pin used to turn on/off MasterFlex Pump and turns it off
+
+  pinMode(PUMP_POWER, OUTPUT); // TODO: CHANE IN HARDWARE
+  digitalWrite(PUMP_POWER, pumpOn);
+  digitalWrite(PUMP_POWER, !pumpOn);
+
+  // Starts DAC to control MasterFlex Pump flow rate
+  dac.begin(0x62); // TODO: CHANE IN HARDWARE
+  setFlowRate(0);
+
+  pinMode(LIMIT_SWITCH, INPUT); // pin connected to limit switch
+  pinMode(SYNC_START, INPUT);   // pin connect to NANO (to know when to start the pump)
 
   mySerial.begin(9600);
-  pinMode(2, INPUT); // pin connected to limit switch
+
   frequency = 0.5;
   mm = -50.0;
   steps = mmToSteps(mm);
@@ -25,12 +49,13 @@ void setup()
   acceleration = getAcceleration(steps, period);
   stepper.setAcceleration(acceleration);
   stepper.setCurrentPosition(0);
-  delay(3000);
+
+  mySerial.println("*UNO FLOW/PRESSURE CONTROL READY*");
 }
 
 void loop()
 {
-  mySerial.println("Ready...");
+
   while (mySerial.available() == 0)
   {
   }
@@ -52,7 +77,29 @@ void loop()
     {
       goHome();
     }
+    else if (decision == 'q')
+    {
+      pumpOn = !pumpOn;
+      digitalWrite(PUMP_POWER, pumpOn);
+      digitalWrite(PUMP_POWER, !pumpOn);
+    }
+    else if (decision == 'p')
+    {
+      phase = input.substring(1).toFloat();
+    }
     else if (decision == 's')
+    {
+      shift = input.substring(1).toFloat();
+    }
+    else if (decision == 'a')
+    {
+      maxFlowRate = input.substring(1).toFloat();
+    }
+    else if (decision == 'e')
+    {
+      setFlowRate(input.substring(1).toFloat());
+    }
+    else if (decision == 'x')
     {
       distanceFromHome = 0.0;
       mySerial.println("UNO: Set this position as 0.");
@@ -69,6 +116,13 @@ void loop()
     }
   }
   mySerial.flush();
+}
+
+// sets the desired flow rate to the pump
+void setFlowRate(float flowRate)
+{
+  float voltage = (float)(flowRate / 80.0) * 4095;
+  dac.setVoltage(voltage, false);
 }
 
 float mmToSteps(float mm)
@@ -91,7 +145,7 @@ void goHome()
 
   stepper.setCurrentPosition(0);
   stepper.moveTo(mmToSteps(-distanceFromHome)); // if stepper motor hit limit switch
-  while (digitalRead(2) == HIGH)
+  while (digitalRead(LIMIT_SWITCH) == HIGH)
   { // if hit stepper motor...
     if (stepper.distanceToGo() == 0)
     {
@@ -124,7 +178,7 @@ void travelUp(float mm)
 
   while (stepper.distanceToGo() > 0)
   {
-    if ((digitalRead(2) == LOW && (millis() - lastHit >= 3000)))
+    if ((digitalRead(LIMIT_SWITCH) == LOW && (millis() - lastHit >= 1000)))
     { // if stepper motor hit limit switch
       stepsToGoBack = -(stepper.currentPosition() + stepper.distanceToGo() + mmToSteps(10.0));
       stepper.setCurrentPosition(0);

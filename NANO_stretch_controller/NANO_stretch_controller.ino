@@ -18,7 +18,7 @@
   1.50 mm
   1.75 mm
   2.0 mm
-  10% Strain: (enter as half distance)
+  10% Strain:
   7 mm
   7.25 mm
   7.5 mm
@@ -29,27 +29,22 @@
 #include <AccelStepper.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <Adafruit_MCP4725.h>
 #include <SPI.h>
-#include "Adafruit_FRAM_SPI.h"
+#define LIMIT_SWITCH 9
+#define SS_RX 2
+#define SS_TX 3
+#define SYNC_START 15 // TODO: CHANE IN HARDWARE
+#define SYNC_PROPAGATION_MS 0
 
-/* Example code for the Adafruit SPI FRAM breakout */
-uint8_t FRAM_CS = 10;
-
-uint8_t FRAM_SCK = 13;
-uint8_t FRAM_MISO = 12;
-uint8_t FRAM_MOSI = 11;
-
-uint16_t addr = 0;
-// 1, 1.25, 1.5, 1.75
+// the following distances only work at 1 Hz, and must be entered using the respective array index
 float stretchingDistances[10] = {1.0, 1.25, 1.50, 1.75, 2.00, 7.00, 7.25, 7.50, 7.75, 8.00};
 float stretchingSpeedConstants[10] = {1.0, 1.00, 1.00, 1.00, 1.00, 500.00, 1.00, 1.00, 1.00, 1.00};
 float stretchingAccelerationConstants[10] = {7.3, 7.46, 7.55, 7.52, 7.58, 100.00, 1.00, 1.00, 1.00, 1.00};
 
-float steps, mm = 0.0, repeatingDistance = 0.0, maxFlowRate = 20.0, phase = 0.0, shift = 0.0;
-float frequency = 0.5;
+int stretchIndex = 0;
+float steps, frequency = 1;
 
-float initialDistance = 2.0; // mm start distance
+float initialDistance = 2.0; // mm start distance in between plates
 
 long unsigned int t_1, t_2, lastHit = 0;
 
@@ -62,35 +57,26 @@ char decision;
 // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 AccelStepper stepper(1, 4, 7);
 
-SoftwareSerial mySerial(2, 3); // RX, TX
-
-Adafruit_MCP4725 dac;
-Adafruit_FRAM_SPI fram = Adafruit_FRAM_SPI(FRAM_SCK, FRAM_MISO, FRAM_MOSI, FRAM_CS);
+SoftwareSerial mySerial(SS_RX, SS_TX); // RX, TX
 
 void setup()
 {
-  // Sets pin used to turn on/off MasterFlex Pump and turns it off
-  pinMode(A1, OUTPUT);
-  digitalWrite(A1, pumpOn);
-  digitalWrite(A1, !pumpOn);
 
   // Begins serial interface for serial monitor and between mega
   Serial.begin(9600);
   mySerial.begin(9600);
-  fram.begin();
 
-  // Starts DAC to control MasterFlex Pump flow rate
-  dac.begin(0x62);
-  setFlowRate(0);
-  pinMode(9, INPUT); // pin connected to limit switch
+  pinMode(LIMIT_SWITCH, INPUT); // pin connected to limit switch
   stepper.setCurrentPosition(0);
   stepper.setMaxSpeed(10000);
   stepper.setAcceleration(1000);
-  delay(2000);
 
-  travelInwards(100.0);
+  hitLimitSwitch();
   travelOutwards(initialDistance);
-  Serial.println("Ready.");
+
+  pinMode(SYNC_START, OUTPUT); // TODO: CHANGE IN HARDWARE
+
+  Serial.println("*NANO STRETCH CONTROL READY*");
 }
 
 void loop()
@@ -111,68 +97,66 @@ void loop()
 
     if (decision == 'r')
     {
-      travelInwards(100);
+      hitLimitSwitch();
       travelOutwards(initialDistance);
       repeating = true;
-      repeatingDistance = input.substring(1).toFloat();
+      stretchIndex = input.substring(1).toInt();
+      mySerial.print("NANO: Starting to stretch distance of ");
+      mySerial.print(stretchingDistances[stretchIndex]);
+      mySerial.println(" mm");
+      mySerial.print("With a frequency of ");
+      mySerial.print(frequency);
+      mySerial.println(" Hz");
     }
-    else if (decision == 'p')
+
+    // else if (decision == 'f') // change stretching frequency
+    // {
+    //   frequency = input.substring(1).toFloat();
+    //   mySerial.print("NANO: New stretching frequency = ");
+    //   mySerial.print(frequency);
+    //   mySerial.println(" mm");
+    // }
+    else if (decision == 'o') // travel outwards a certain distance
     {
-      phase = input.substring(1).toFloat();
+      float outDistance = input.substring(1).toFloat();
+      travelOutwards(outDistance);
+      mySerial.print("NANO: Travelled outwards distance of ");
+      mySerial.print(outDistance);
+      mySerial.println(" mm");
     }
-    else if (decision == 's')
+    else if (decision == 'd') // change the initial displacement between plates
     {
-      shift = input.substring(1).toFloat();
-    }
-    else if (decision == 'a')
-    {
-      maxFlowRate = input.substring(1).toFloat();
-    }
-    else if (decision == 'f')
-    {
-      frequency = input.substring(1).toFloat();
-    }
-    else if (decision == 'o')
-    {
-      travelOutwards(input.substring(1).toFloat());
-    }
-    else if (decision == 'd')
-    {
-      repeating = false;
       initialDistance = input.substring(1).toFloat();
-      travelInwards(100.0);
-      travelOutwards(initialDistance);
+      mySerial.print("NANO: New initial distance = ");
+      mySerial.print(initialDistance);
+      mySerial.println(" mm");
     }
     else if (decision == 'i')
     {
-      travelInwards(input.substring(1).toFloat());
-    }
-    else if (decision == 'q')
-    {
-      pumpOn = !pumpOn;
-      digitalWrite(A1, pumpOn);
-      digitalWrite(A1, !pumpOn);
-    }
-    else if (decision == 'e')
-    {
-      setFlowRate(input.substring(1).toFloat());
+      float inDistance = input.substring(1).toFloat();
+      travelInwards(inDistance);
+      mySerial.print("NANO: Travelled inwards distance of ");
+      mySerial.print(inDistance);
+      mySerial.println(" mm");
     }
     else if (decision == 'x')
     {
-      travelInwards(100);
+      hitLimitSwitch();
       travelOutwards(initialDistance);
       repeating = false;
+      digitalWrite(SYNC_START, LOW); // Tell UNO to stop the pump
+      mySerial.println("NANO: Stretching cancelled");
+      mySerial.print("NANO: Current Displacement = ");
+      mySerial.print(initialDistance);
+      mySerial.println(" mm");
+    }
+    else
+    {
+      mySerial.println("NANO: Please enter a valid command");
     }
   }
 
   mySerial.flush();
-}
-
-// sets the desired flow rate to the pump
-void setFlowRate(float flowRate)
-{
-  float voltage = (float)(flowRate / 80.0) * 4095;
-  dac.setVoltage(voltage, false);
 }
 
 // converts mm to steps, only works for bidirectional lead screw
@@ -192,6 +176,29 @@ void travelOutwards(float mm)
   }
 }
 
+void hitLimitSwitch()
+{
+
+  steps = getSteps(1000);
+  stepper.setCurrentPosition(0);
+  stepper.moveTo(steps);
+
+  while (stepper.distanceToGo() > 0)
+  {
+    // if stepper motor hit limit switch and the last time it was hit is greater than 1 second
+    if ((digitalRead(LIMIT_SWITCH) == LOW && (millis() - lastHit >= 1000)))
+    {
+      stepper.setCurrentPosition(0);
+      lastHit = millis();
+      return;
+    }
+    else
+    {
+      stepper.run();
+    }
+  }
+}
+
 void travelInwards(float mm)
 {
 
@@ -202,7 +209,7 @@ void travelInwards(float mm)
   while (stepper.distanceToGo() > 0)
   {
 
-    if ((digitalRead(9) == LOW && (millis() - lastHit >= 1000)))
+    if ((digitalRead(LIMIT_SWITCH) == LOW && (millis() - lastHit >= 1000)))
     { // if stepper motor hit limit switch
       stepper.setCurrentPosition(0);
       lastHit = millis();
@@ -215,10 +222,10 @@ void travelInwards(float mm)
   }
 }
 
-void stretch(int stretchIndex, float frequency)
+void stretch(int stretchIndex)
 {
 
-  float period = (1.0 / frequency); // s
+  float period = 1; // can only do 1 Hz properly
 
   float steps = getSteps(stretchingDistances[stretchIndex]);
 
@@ -227,27 +234,21 @@ void stretch(int stretchIndex, float frequency)
 
   long unsigned int t0 = 0, t1 = 0;
 
-  // find the perfect acceleration constant until the correct oscillation period is found
-  bool foundaccelMultiplier = false;
-  bool firstRun = true;
-  float accelMultiplier = 1.0;
-  float maxResolutionDiff = 3.0;
-  float prevError = 0.0;
-  float error = 0.0;
-  float maxError = 0.0;
-  float k = 0.0;
-
-  t0 = millis();
   stepper.setAcceleration(stretchingAccelerationConstants[stretchIndex] * averageAcceleration);
   stepper.setSpeed(stretchingSpeedConstants[stretchIndex] * averageSpeed);
-  stepper.move(-round(steps)); // move outwards
 
+  stepper.move(-steps); // move outwards (first half of period)
+
+  digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
+  delay(SYNC_PROPAGATION_MS);     // delay in case stepper starts too soon before pump
+
+  t0 = millis();
   while (stepper.distanceToGo() < -1)
   {
     stepper.run();
   }
 
-  stepper.move(round(steps)); // move back inwards (1 period of oscillation)
+  stepper.move(steps); // move back inwards (final half of period)
 
   while (stepper.distanceToGo() > 1)
   {
@@ -255,5 +256,7 @@ void stretch(int stretchIndex, float frequency)
   }
   t1 = millis();
 
-  Serial.println(t1 - t0);
+  mySerial.print("NANO: Finished stretching with a period of ");
+  mySerial.print(t1 - t0);
+  mySerial.println(" ms");
 }

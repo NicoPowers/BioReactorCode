@@ -28,7 +28,7 @@ Likewise, to the UNO, allow commands must start with a lowercase "u" (to signify
 
 int count = 1;
 
-// PendoTech Sensor ratio
+// PendoTech Sensor ratio (calibrated value)
 float ratio = 102.0 / 8387415.50;
 
 String input;
@@ -50,12 +50,23 @@ void setup()
 void loop()
 {
 
+  // while user has not sent a command to the NANO or UNO, check to see if
+  // message received from UNO or NANO
   while (Serial.available() == 0)
   {
-    readSensor();
-    delay(100);
+    // check to see if received message from UNO
+    if (Serial1.available() > 0)
+    {
+      Serial.println(Serial1.readString());
+    }
+    // check to see if received message from NANO
+    if (Serial2.available() > 0)
+    {
+      Serial.println(Serial2.readString());
+    }
   }
 
+  // if user is going to send command to either the UNO or NANO
   if (Serial.available() > 0)
   {
     input = Serial.readString();
@@ -69,6 +80,7 @@ void loop()
       Serial1.println(input.substring(1));
     }
   }
+
   Serial.flush();
   Serial1.flush();
   Serial2.flush();

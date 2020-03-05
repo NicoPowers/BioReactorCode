@@ -5,7 +5,9 @@
             "includePath": [
                 "C:\\Program Files (x86)\\Arduino\\tools\\**",
                 "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\**",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "C:\\Users\\User\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.6.23\\**",
+                "C:\\Users\\User\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**"
             ],
             "browse": {
                 "path": [
@@ -19,7 +21,8 @@
             },
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h",
+                "C:\\Users\\User\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\avr\\1.6.23\\cores\\arduino\\Arduino.h"
             ]
         }
     ],
