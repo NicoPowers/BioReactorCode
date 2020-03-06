@@ -60,7 +60,7 @@ Below are the following commands that you can use:
 - **ux** to **set the current position** as the home position
 - **uc** to **check the current distance** from the home position
 - **uq** to **toggle** the MasterFlex pump on/off
-- **ur** to **enable sinusoidal flow rate** (**does not start sinusoidal flow rate, only enables it, Nano triggers it so they are synced**)
+- **ur** to **enable sinusoidal flow rate** (**does not start sinusoidal flow rate, only enables it, Nano triggers it so they are sync'd**)
   **NOTE:**
   - If you set a constant flow rate, you **MUST** re-enable sinusoidal flow rate before you want to do sinusoidal flow control
 - **up%f** to set the **phase**, _%f_ (degrees), of the sinusoidal flow rate
