@@ -18,7 +18,9 @@ Below are the following commands that you use:
 **Command Legend**
 
 **_%f_ => float**
+
 **_%i_ => integer**
+
 **_%b_ => boolean (still expressed as an integer; 1 -> true | 0 -> false)**
 
 - **no%f** to move outwards a distance _%f_
