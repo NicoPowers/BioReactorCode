@@ -62,9 +62,7 @@ Below are the following commands that you can use:
 - **uq** to **toggle** the MasterFlex pump on/off
 - **ur** to **enable sinusoidal flow rate** (**does not start sinusoidal flow rate, only enables it, Nano triggers it so they are sync'd**)
 
-  **NOTE:**
-
-  - If you set a constant flow rate, you **MUST** re-enable sinusoidal flow rate before you want to do sinusoidal flow control
+  **NOTE:** If you set a constant flow rate, you **MUST** re-enable sinusoidal flow rate before you want to do sinusoidal flow control
 
 - **up%f** to set the **phase**, _%f_ (degrees), of the sinusoidal flow rate
 - **us%f** to set the **vertical shift**, _%f_ (mL/min), of the sinusoidal flow rate
