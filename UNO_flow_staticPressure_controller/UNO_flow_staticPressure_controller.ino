@@ -34,8 +34,9 @@
 float frequency, period, acceleration, steps, mm, stepsToGoBack, newMaxSpeed, distanceFromHome = 0.0;
 float maxFlowRate = 5.5, phase = 0.0, shift = 132.0, phaseInRad = phase * DEG_TO_RAD;
 long int t_1, t_2, lastHit = 0;
+int tubingSize = 16;
 
-volatile bool pumpOn = true, manualFlowRate = false;
+volatile bool pumpOn = false, manualFlowRate = false;
 
 int numSteps = 100;
 float timePerStep = (float)2.0 / numSteps; // time per step in seconds
@@ -60,7 +61,7 @@ void setup()
 
   // Starts DAC to control MasterFlex Pump flow rate
   dac.begin(0x62);
-  setFlowRate(0, 17);
+  setFlowRate(0);
 
   pinMode(LIMIT_SWITCH, INPUT); // pin connected to limit switch
   pinMode(SYNC_START, INPUT);   // pin connect to NANO (to know when to start the pump)
@@ -160,7 +161,7 @@ void loop()
     {
       float flowRate = input.substring(1).toFloat();
       manualFlowRate = true;
-      setFlowRate(flowRate, 17);
+      setFlowRate(flowRate);
       mySerial.print("UNO: New constant flow rate = ");
       mySerial.println(flowRate);
       mySerial.flush();
@@ -187,6 +188,13 @@ void loop()
       mySerial.println("UNO: Manual flow rate disabled, waiting for NANO...");
       mySerial.flush();
     }
+    else if (decision == 't')
+    {
+      tubingSize = input.substring(1).toInt();
+      mySerial.print("UNO: New selected tubing size = ");
+      mySerial.println(tubingSize);
+      mySerial.flush();
+    }
     else
     {
       mySerial.println("UNO: Please enter a valid decision");
@@ -202,7 +210,7 @@ void loop()
 // sets the desired flow rate to the pump
 // size 16 -> max 80 ml/min
 // size 17 -> max 280 ml/min
-void setFlowRate(float flowRate, int tubingSize)
+void setFlowRate(float flowRate)
 {
   float maxFlowRate;
   if (tubingSize == 16)
@@ -276,7 +284,7 @@ void sinusoidalFlowRate()
   for (int i = 0; i < numSteps; i++)
   {
     float currentFlowRate = shift + (maxFlowRate * sin(PI * (float)(i * timePerStep) + phaseInRad));
-    setFlowRate(currentFlowRate, 17);
+    setFlowRate(currentFlowRate);
     delay(timeDelay);
   }
 }
