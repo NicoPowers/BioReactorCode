@@ -2,8 +2,6 @@
 
 This repository holds all the software that is used for Dr. Allen's labs' bioreactor device at the University of Florida (Material Science and Engineering department).
 
-_Designed, built, and programmed by undergraduate research student Nicolas Montoya._
-
 The **MEGA_Controller.ino** code is meant to send commands to the stretch controller (NANO) and flow rate controller (UNO).
 
 The **UNO_flow_staticPressure_controller.ino** code is meant to run on the UNO and is used to control the position of the vial and vary the pump sinusoidally.
@@ -74,4 +72,4 @@ Below are the following commands that you can use:
 External libraries used can also be found in this repositiory.
 Schematics and full wiring diagrams are expected to come with version 2.
 
-_Stayed Tuned..._
+_Designed, built, and programmed by undergraduate research student Nicolas Montoya._
