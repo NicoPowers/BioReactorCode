@@ -10,26 +10,26 @@
   "uu%f" to move the vial up a certain distance %f in mm
   "uh" to move back to the home position
   "us" to set the current position as the home position
-  "uq" to toggle the state of the MasterFlex pump
   "uc" to check the current distance from the home position
   "ux" to set the current position of the water vial as the home position
-  "ua%f" to set the phase of the sinusoidal flow rate
+  
+  "uq" to toggle the state of the MasterFlex pump
   "up%f" to set the phase of the sinusoidal flow rate
   "us%f" to set the vertical shift of the sinusoidal flow rate
   "ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
   "ue%f" to set the manual (constant) flow rate (disables sinusoidal flow rate)
-  "ue%f" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
+  "ur" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
           sinusoidal flow rate, disables manual flow rate)
 */
 #include <AccelStepper.h>
 #include <SoftwareSerial.h>
 #include <Adafruit_MCP4725.h>
-#define DAC_NOISE_OFFSET 0 // TODO: FIGURE OUT OFFSET
+#define DAC_NOISE_OFFSET 0
 #define LIMIT_SWITCH 2
 #define PUMP_POWER A1
 #define SS_RX 10
 #define SS_TX 11
-#define SYNC_START A0 // TODO: CHANE IN HARDWARE
+#define SYNC_START A0
 
 float frequency, period, acceleration, steps, mm, stepsToGoBack, newMaxSpeed, distanceFromHome = 0.0;
 float maxFlowRate = 5.5, phase = 0.0, shift = 132.0, phaseInRad = phase * DEG_TO_RAD;
@@ -38,8 +38,8 @@ long int t_1, t_2, lastHit = 0;
 volatile bool pumpOn = true, manualFlowRate = false;
 
 int numSteps = 100;
-float timePerStep = (float) 2.0 / numSteps; // time per step in seconds
-float timeDelay = (float) timePerStep * 1000.0;
+float timePerStep = (float)2.0 / numSteps; // time per step in seconds
+float timeDelay = (float)timePerStep * 1000.0;
 
 String input;
 
@@ -54,12 +54,12 @@ void setup()
 {
   // Sets pin used to turn on/off MasterFlex Pump and turns it off
 
-  pinMode(PUMP_POWER, OUTPUT); // TODO: CHANE IN HARDWARE
+  pinMode(PUMP_POWER, OUTPUT);
   digitalWrite(PUMP_POWER, pumpOn);
   digitalWrite(PUMP_POWER, !pumpOn);
 
   // Starts DAC to control MasterFlex Pump flow rate
-  dac.begin(0x62); // TODO: CHANE IN HARDWARE
+  dac.begin(0x62);
   setFlowRate(0, 17);
 
   pinMode(LIMIT_SWITCH, INPUT); // pin connected to limit switch
@@ -85,11 +85,9 @@ void loop()
     // if the SYNC_START signal is high, and manual flow rate is disabled, it is time for the UNO to output a sinusoidal flow rate to the pump
     if ((digitalRead(SYNC_START) == HIGH) && !manualFlowRate)
     {
-//      mySerial.println("UNO: Starting sinusodial flow rate");
-//      mySerial.flush();
+
       sinusoidalFlowRate();
     }
-//    delay(5000);
   }
   if (mySerial.available() > 0)
   {
@@ -194,24 +192,28 @@ void loop()
       mySerial.println("UNO: Please enter a valid decision");
       mySerial.flush();
     }
-    while(mySerial.available()){mySerial.read();}
+    while (mySerial.available())
+    {
+      mySerial.read();
+    }
   }
-    
 }
 
 // sets the desired flow rate to the pump
 // size 16 -> max 80 ml/min
 // size 17 -> max 280 ml/min
-void setFlowRate(float flowRate, int tubingSize )
+void setFlowRate(float flowRate, int tubingSize)
 {
   float maxFlowRate;
-  if (tubingSize == 16){
-      maxFlowRate = 80;
+  if (tubingSize == 16)
+  {
+    maxFlowRate = 80;
   }
-  else if (tubingSize == 17){
+  else if (tubingSize == 17)
+  {
     maxFlowRate = 280;
   }
-  
+
   float voltage = ((float)(flowRate / maxFlowRate) * 4095) + DAC_NOISE_OFFSET;
   dac.setVoltage(voltage, false);
 }
@@ -250,35 +252,6 @@ void travelDown(float mm)
   distanceFromHome = distanceFromHome - mm;
 }
 
-/*
-  void travelUp(float mm)
-  {
-
-  steps = mmToSteps(mm);
-  stepper.setCurrentPosition(0);
-  stepper.moveTo(steps);
-
-  while (stepper.distanceToGo() > 0)
-  {
-    if ((digitalRead(LIMIT_SWITCH) == LOW && (millis() - lastHit >= 1000)))
-    { // if stepper motor hit limit switch
-      stepsToGoBack = -(stepper.currentPosition() + stepper.distanceToGo() + mmToSteps(10.0));
-      stepper.setCurrentPosition(0);
-      lastHit = millis();
-      mySerial.println("UNO: Hit limit switch! Setting this position as 0.");
-      distanceFromHome = 0.0;
-      return;
-    }
-    else
-    {
-      stepper.run();
-    }
-  }
-
-  distanceFromHome = distanceFromHome + mm;
-  }
-*/
-
 void travelUp(float mm)
 {
 
@@ -300,7 +273,7 @@ void sinusoidalFlowRate()
   /* The following sinusoidal flow rate is designed to ONLY work at 1 Hz since only 1 Hz stretching
     works with the current stepper motor*/
 
-  for (int i = 0; i < numSteps; i++ )
+  for (int i = 0; i < numSteps; i++)
   {
     float currentFlowRate = shift + (maxFlowRate * sin(PI * (float)(i * timePerStep) + phaseInRad));
     setFlowRate(currentFlowRate, 17);

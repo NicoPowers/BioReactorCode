@@ -41,7 +41,7 @@
 #define LIMIT_SWITCH 9
 #define SS_RX 2
 #define SS_TX 3
-#define SYNC_START A1 // TODO: CHANE IN HARDWARE
+#define SYNC_START A1
 #define SYNC_PROPAGATION_MS 0
 
 // the following distances only work at 1 Hz, and must be entered using the respective array index
@@ -51,7 +51,6 @@ float stretchingAccelerationConstants[10] = {7.3, 7.46, 7.55, 7.52, 7.58, 100.00
 
 int stretchIndex = 0, withPump = 0;
 float steps, frequency = 1;
-
 
 float averagePeriod = 0;
 float totalPeriod = 0;
@@ -75,7 +74,6 @@ void setup()
 {
 
   // Begins serial interface for serial monitor and between mega
-  //  Serial.begin(9600);
   mySerial.begin(9600);
 
   pinMode(LIMIT_SWITCH, INPUT); // pin connected to limit switch
@@ -86,7 +84,7 @@ void setup()
   hitLimitSwitch();
   travelOutwards(initialDistance);
 
-  pinMode(SYNC_START, OUTPUT);   // TODO: CHANGE IN HARDWARE
+  pinMode(SYNC_START, OUTPUT);
   digitalWrite(SYNC_START, LOW); // start sync start low so pump does not start with sinusoidal flow rate
 
   mySerial.println("NANO: Stretching ready ...");
@@ -122,12 +120,13 @@ void loop()
       mySerial.print(stretchingDistances[stretchIndex]);
       mySerial.println(" mm");
       mySerial.flush();
-      if (withPump == 1) {
+      if (withPump == 1)
+      {
         mySerial.println("NANO: With a sinusodial flow rate");
         mySerial.flush();
-
       }
-      else {
+      else
+      {
         mySerial.println("NANO: Without a sinusodial flow rate");
         mySerial.flush();
       }
@@ -138,7 +137,8 @@ void loop()
     // **** command to move outwards
     else if (decision == 'o') // travel outwards a certain distance
     {
-      if (!repeating) {
+      if (!repeating)
+      {
         float outDistance = input.substring(1).toFloat();
         travelOutwards(outDistance);
         mySerial.print("NANO: Travelled outwards distance of ");
@@ -146,11 +146,11 @@ void loop()
         mySerial.println(" mm");
         mySerial.flush();
       }
-      else {
+      else
+      {
         mySerial.println("Please stop stretching by entering 'nrx'");
         mySerial.flush();
       }
-
     }
     // **** command to change the initial displacment between the plates
     else if (decision == 'd') // change the initial displacement between plates
@@ -164,7 +164,8 @@ void loop()
     // **** command to move inwards
     else if (decision == 'i')
     {
-      if (!repeating) {
+      if (!repeating)
+      {
         float inDistance = input.substring(1).toFloat();
         travelInwards(inDistance);
         mySerial.print("NANO: Travelled inwards distance of ");
@@ -172,11 +173,11 @@ void loop()
         mySerial.println(" mm");
         mySerial.flush();
       }
-      else {
+      else
+      {
         mySerial.println("Please stop stretching by entering 'nrx'");
         mySerial.flush();
       }
-
     }
     // **** command to stop the stretching, must also stop the pump if it is on
     else if (decision == 'x')
@@ -199,10 +200,11 @@ void loop()
       mySerial.println("NANO: Please enter a valid command");
       mySerial.flush();
     }
-    while(mySerial.available()){mySerial.read();}
+    while (mySerial.available())
+    {
+      mySerial.read();
+    }
   }
-
-  
 }
 
 // converts mm to steps, only works for bidirectional lead screw
@@ -285,41 +287,22 @@ void sinusoidalStretch(int stretchIndex)
   stepper.setAcceleration(stretchingAccelerationConstants[stretchIndex] * averageAcceleration);
   stepper.setSpeed(stretchingSpeedConstants[stretchIndex] * averageSpeed);
 
-
   if (withPump == 1)
   {
     digitalWrite(SYNC_START, HIGH); // Tell UNO to start the pump in sync with stretching
     delay(SYNC_PROPAGATION_MS);     // delay, in ms, if stepper starts too soon before pump
   }
-  /*
-    t0 = millis();
-    stepper.move(-steps); // move outwards (first half of period)
-    while (stepper.distanceToGo() < -1)
-    {
-    stepper.run();
-    }
-  */
+
   t0 = millis();
   travelOutwards(distanceToStretch); // move outwards (first half of period)
-  travelInwards(distanceToStretch); // move back inwards (final half of period)
+  travelInwards(distanceToStretch);  // move back inwards (final half of period)
   t1 = millis();
-  /*
-    stepper.move(steps); // move back inwards (final half of period)
-    while (stepper.distanceToGo() > 1)
-    {
-    stepper.run();
-    }
-    t1 = millis();
-  */
+
   if (withPump == 1)
   {
     digitalWrite(SYNC_START, LOW); // Tell UNO to stop the pump
   }
   totalPeriod += t1 - t0;
   timesRepeated += 1;
-  averagePeriod = (float) (totalPeriod) / timesRepeated;
-
-  //  mySerial.print("NANO: Finished stretching with a period of ");
-  //  mySerial.print(t1 - t0);
-  //  mySerial.println(" ms");
+  averagePeriod = (float)(totalPeriod) / timesRepeated;
 }

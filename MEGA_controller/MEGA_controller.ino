@@ -41,9 +41,10 @@
   "uu%f" to move the vial up a certain distance %f in mm
   "uh" to move back to the home position
   "us" to set the current position as the home position
-  "uq" to toggle the state of the MasterFlex pump
   "uc" to check the current distance from the home position
   "ux" to set the current position of the water vial as the home position
+
+  "uq" to toggle the state of the MasterFlex pump
   "up%f" to set the phase of the sinusoidal flow rate
   "us%f" to set the vertical shift of the sinusoidal flow rate
   "ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
@@ -64,9 +65,6 @@ float ratio = 102.0 / 8387415.50;
 String input;
 
 char decision;
-
-// int flowRates[6] = {30, 40, 50, 60, 70, 80};
-// float pumpPressures[6] = {0, 0, 0, 0, 0, 0};
 
 Hx711 sensor(A1, A0);
 
@@ -92,7 +90,8 @@ void loop()
     {
       Serial.println(Serial1.readString());
       Serial.flush();
-      while (Serial1.available()) {
+      while (Serial1.available())
+      {
         Serial1.read();
       }
     }
@@ -101,7 +100,8 @@ void loop()
     {
       Serial.println(Serial2.readString());
       Serial.flush();
-      while (Serial2.available()) {
+      while (Serial2.available())
+      {
         Serial2.read();
       }
     }
@@ -122,12 +122,11 @@ void loop()
       Serial1.println(input.substring(1));
       Serial1.flush();
     }
-    while (Serial.available()) {
-        Serial.read();
-      }
+    while (Serial.available())
+    {
+      Serial.read();
+    }
   }
-
-
 }
 
 // void readSensor()
