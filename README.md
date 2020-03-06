@@ -71,4 +71,5 @@ Below are the following commands that you can use:
 - **ue%f** to set the manual flow rate (**constant**), where _%f_ is the value
 - **ut%i** to set the **tubing size**, _%i_, (**16 or 17: Default selected tubing size is 16**)
 
-Schematics and full wiring diagrams are yet to come.
+External libraries used can also be found in this repositiory.
+Schematics and full wiring diagrams are expected to come with version 2. _stayed tuned_
