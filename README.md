@@ -18,6 +18,7 @@ To send commands that affect stretching, all commands must start with a lowercas
 - **"nr%p%i"** to start oscillation where _%p_ is whether or not to use sinusodial flow with the stretching and _%i_ is the repeating distance index (choose from the below array) of oscillation:
 
   **[1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.50, 7.75, 8.0]**
+
   Examples:
 
   - nr01 -> stretch **without** sinusodial flow rate distance of 1.25 mm
