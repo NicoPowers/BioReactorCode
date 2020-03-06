@@ -4,50 +4,7 @@
   Status: Prototype
   This code is ran on the Mega and is meant to control the Nano and the UNO; which allows you to control the MasterFlex Pump, stretcher, and hydrostatic pressure vial
 
-  To send commands to the Nano, allow commands must start with a lowercase "n" (to signify nano); below are the following commands that you can send to the nano:
-
-  "nd%f" to set the initial displacement
-  "no%d" to move outwards a distance %f
-  "ni%f" to move inwards a distance %f
-  "nx" to cancel the oscillation and return stretcher to limit switch
-  "nr1%i" to start oscillation where %i is the repeating distance index (integer) of oscillation with the sinusoidal pump flow
-  "nr0%i" to start oscillation where %f is the repeating distance index (integer) of oscillation without the sinusoidal pump flow
-  REPEATING DISTANCES:
-  [1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.25, 7.5, 7.75, 8.0]
-    0     1     2     3     4   5   6     7     8    9
-
-  This does 1 Hz Frequency only at the following distances:
-  5% Strain:
-  1 mm
-  1.25 mm
-  1.50 mm
-  1.75 mm
-  2.0 mm
-  The following distances are less than 1 Hz
-  10% Strain:
-  7 mm
-  7.25 mm
-  7.5 mm
-  7.75 mm
-  8.0 mm
-
-  Likewise, for the UNO, all commands must start with a lowercase "u"(to signify UNO);
-  below are the following commands that you can send to the UNO :
-
-  "ud%f" to move the vial down a certain distance %f in mm
-  "uu%f" to move the vial up a certain distance %f in mm
-  "uh" to move back to the home position
-  "us" to set the current position as the home position
-  "uc" to check the current distance from the home position
-  "ux" to set the current position of the water vial as the home position
-
-  "uq" to toggle the state of the MasterFlex pump
-  "up%f" to set the phase of the sinusoidal flow rate
-  "us%f" to set the vertical shift of the sinusoidal flow rate
-  "ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
-  "ue%f" to set the manual (constant) flow rate (disables sinusoidal flow rate)
-  "ur" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
-        sinusoidal flow rate, disables manual flow rate)
+  Refer to the README.md to see what commands can be sent to the UNO flow controller and the NANO stretch controller.
 
 
 */

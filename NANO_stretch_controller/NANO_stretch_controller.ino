@@ -3,35 +3,8 @@
   Credits: Bryan James
   Status: Prototype
   This code is uploaded to the NANO, and controls the bidirectional stepper in a sinusoidal fashion
-  The commands that can be given to the nano from the MEGA include:
-  "nd%f" to set the initial displacement
-  "nf%f" to set the frequency for the oscillation where %f is the value you want to set it to
-  "no%d" to move outwards a distance %f
-  "ni%f" to move inwards a distance %f
-  "nq" to toggle the state of the MasterFlex Pump
-  "ne%f" to set the flow rate for the MasterFlex Pump, where %f ranges from 0 to 80
-  "nx" to cancel the oscillation and return stretcher to limit switch
-  "nr1%f" to start oscillation where %f is the repeating distance (in mm) of oscillation with the sinusoidal pump flow
-  "nr0%f" to start oscillation where %f is the repeating distance (in mm) of oscillation without the sinusoidal pump flow
 
-  REPEATING DISTANCES:
-  [1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.25, 7.5, 7.75, 8.0]
-    0     1     2     3     4   5   6     7     8    9
-
-  This does 1 Hz Frequency only at the following distances:
-  5% Strain:
-  1 mm
-  1.25 mm
-  1.50 mm
-  1.75 mm
-  2.0 mm
-  The following distances are less than 1 Hz
-  10% Strain:
-  7 mm
-  7.25 mm
-  7.5 mm
-  7.75 mm
-  8.0 mm
+  Refer to the README.md to see what commands to send to the NANO stretch controller.
 */
 
 #include <AccelStepper.h>

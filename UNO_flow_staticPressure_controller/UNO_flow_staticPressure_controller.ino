@@ -6,20 +6,7 @@
   and controls the MasterFlex pump with a constant flow rate or a sinusoidal flow rate
   in sync with the NANO stretching
 
-  "ud%f" to move the vial down a certain distance %f in mm
-  "uu%f" to move the vial up a certain distance %f in mm
-  "uh" to move back to the home position
-  "us" to set the current position as the home position
-  "uc" to check the current distance from the home position
-  "ux" to set the current position of the water vial as the home position
-  
-  "uq" to toggle the state of the MasterFlex pump
-  "up%f" to set the phase of the sinusoidal flow rate
-  "us%f" to set the vertical shift of the sinusoidal flow rate
-  "ua%f" to set the max amplitude (max flow rate) of the sinusoidal flow rate
-  "ue%f" to set the manual (constant) flow rate (disables sinusoidal flow rate)
-  "ur" to enable sinusoidal flow rate (allows for NANO to tell UNO when to start
-          sinusoidal flow rate, disables manual flow rate)
+  Refer to the README.md to see what commands to send to the UNO flow controller.
 */
 #include <AccelStepper.h>
 #include <SoftwareSerial.h>
