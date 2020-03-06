@@ -29,7 +29,7 @@ Below are the following commands that you use:
 - **nx** to **cancel the oscillation** and return stretcher to limit switch plus some initial distance
 - **nr%b%i** to **start oscillation** where _%b_ is whether or not to use sinusoidal flow and _%i_ is the repeating distance index (choose from the below array):
 
-  **[1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.50, 7.75, 8.0] _%mm_**
+  **[1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.50, 7.75, 8.0] mm**
 
   Examples:
 
