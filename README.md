@@ -14,11 +14,12 @@ Below is the cheat sheet for the commands that can be given to both the UNO and 
 
 To send commands that affect stretching, all commands must start with a lowercase **n** (to signify nano).
 Below are the following commands that you use:
+
 **Command Legend**
 
-- **_%f_ ==> float**
-- **_%i_ ==> integer**
-- **_%b_ ==> boolean (still expressed as an integer; 1 -> true | 0 -> false)**
+**_%f_ => float**
+**_%i_ => integer**
+**_%b_ => boolean (still expressed as an integer; 1 -> true | 0 -> false)**
 
 - **no%f** to move outwards a distance _%f_
 - **ni%f** to move inwards a distance _%f_
