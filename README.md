@@ -67,7 +67,7 @@ Below are the following commands that you can use:
 - **up%f** to set the **phase**, _%f_ (degrees), of the sinusoidal flow rate
 - **us%f** to set the **vertical shift**, _%f_ (mL/min), of the sinusoidal flow rate
 - **ua%f** to set the **amplitude**, _%f_ (mL/min), of the sinusoidal flow rate
-- **ue%f** to set the manual flow rate (**constant**), where _%f_ is the value
+- **ue%f** to set the manual (constant) flow rate (**this disables sinusoidal flow rate**), where _%f_ is the value
 - **ut%i** to set the **tubing size**, _%i_, (**16 or 17: Default selected tubing size is 16**)
 
 External libraries used can also be found in this repositiory.
