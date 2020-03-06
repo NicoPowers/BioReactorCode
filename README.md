@@ -8,7 +8,7 @@ The **UNO_flow_staticPressure_controller.ino** code is meant to run on the UNO a
 
 The **NANO_stretch_controller.ino** code is meant to run on the Nano and is used to control the stretching of the chamber sinusoidally.
 
-Below is the cheat sheet for the commands that can be given to both the UNO and the Nano from the Serial Monitor Terminal of the Arduino Mega (**this Command Sheet can also be found inside the MEGA_Controller.ino code**):
+Below is the cheat sheet for the commands that can be given to both the UNO and the Nano from the Serial Monitor Terminal of the Arduino Mega:
 
 To send commands that affect stretching, all commands must start with a lowercase **n** (to signify nano).
 Below are the following commands that you use:
