@@ -7,11 +7,8 @@
   To send commands to the Nano, allow commands must start with a lowercase "n" (to signify nano); below are the following commands that you can send to the nano:
 
   "nd%f" to set the initial displacement
-  "nf%f" to set the frequency for the oscillation where %f is the value you want to set it to
   "no%d" to move outwards a distance %f
   "ni%f" to move inwards a distance %f
-  "nq" to toggle the state of the MasterFlex Pump
-  "ne%f" to set the flow rate for the MasterFlex Pump, where %f ranges from 0 to 80
   "nx" to cancel the oscillation and return stretcher to limit switch
   "nr1%i" to start oscillation where %i is the repeating distance index (integer) of oscillation with the sinusoidal pump flow
   "nr0%i" to start oscillation where %f is the repeating distance index (integer) of oscillation without the sinusoidal pump flow
