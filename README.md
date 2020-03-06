@@ -72,4 +72,5 @@ Below are the following commands that you can use:
 - **ut%i** to set the **tubing size**, _%i_, (**16 or 17: Default selected tubing size is 16**)
 
 External libraries used can also be found in this repositiory.
-Schematics and full wiring diagrams are expected to come with version 2. _stayed tuned_
+Schematics and full wiring diagrams are expected to come with version 2.
+_Stayed Tuned..._
