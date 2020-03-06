@@ -23,11 +23,11 @@ Below are the following commands that you use:
 
 **_%b_ => boolean (still expressed as an integer; 1 -> true | 0 -> false)**
 
-- **no%f** to move outwards a distance _%f_
-- **ni%f** to move inwards a distance _%f_
-- **nd%f** to set the initial displacement, _%f_, between the plates
-- **nx** to cancel the oscillation and return stretcher to limit switch plus some initial distance
-- **nr%b%i** to start oscillation where _%b_ is whether or not to use sinusoidal flow with the stretching and _%i_ is the repeating distance index (choose from the below array) of oscillation:
+- **no%f** to move **outwards** a distance _%f_
+- **ni%f** to move **inwards** a distance _%f_
+- **nd%f** to set the **initial displacement**, _%f_, between the plates
+- **nx** to **cancel the oscillation** and return stretcher to limit switch plus some initial distance
+- **nr%b%i** to **start oscillation** where _%b_ is whether or not to use sinusoidal flow and _%i_ is the repeating distance index (choose from the below array):
 
   **[1.0, 1.25, 1.50, 1.75, 2.00, 7, 7.50, 7.75, 8.0] _%mm_**
 
@@ -56,19 +56,19 @@ Below are the following commands that you use:
 To send commands to change the vertical height of the water vial and to set constant or sinusoidal flow rate, all commands must start with a lowercase **u** (to signify UNO).
 Below are the following commands that you can use:
 
-- **ud%f** to move the vial down a certain distance _%f_ (mm)
-- **uu%f** to move the vial up a certain distance _%f_ (mm)
-- **uh** to move back to the home position
-- **ux** to set the current position as the home position
-- **uc** to check the current distance from the home position
-- **uq** to toggle the MasterFlex pump on/off
-- **ur** to enable sinusoidal flow rate (**does not start sinusoidal flow rate, only enables it, Nano triggers it so they are synced**)
+- **ud%f** to move the vial **down** a certain distance _%f_ (mm)
+- **uu%f** to move the vial **up** a certain distance _%f_ (mm)
+- **uh** to move back to the **home** position
+- **ux** to **set the current position** as the home position
+- **uc** to **check the current distance** from the home position
+- **uq** to **toggle** the MasterFlex pump on/off
+- **ur** to **enable sinusoidal flow rate** (**does not start sinusoidal flow rate, only enables it, Nano triggers it so they are synced**)
   **NOTE:**
   - If you set a constant flow rate, you **MUST** re-enable sinusoidal flow rate before you want to do sinusoidal flow control
-- **up%f** to set the phase, _%f_ (degrees), of the sinusoidal flow rate
-- **us%f** to set the vertical shift, _%f_ (mL/min), of the sinusoidal flow rate
-- **ua%f** to set the amplitude, _%f_ (mL/min), of the sinusoidal flow rate
+- **up%f** to set the **phase**, _%f_ (degrees), of the sinusoidal flow rate
+- **us%f** to set the **vertical shift**, _%f_ (mL/min), of the sinusoidal flow rate
+- **ua%f** to set the **amplitude**, _%f_ (mL/min), of the sinusoidal flow rate
 - **ue%f** to set the manual flow rate (**constant**), where _%f_ is the value
-- **ut%i** to set the tubing size, _%i_, (**16 or 17: Default selected tubing size is 16**)
+- **ut%i** to set the **tubing size**, _%i_, (**16 or 17: Default selected tubing size is 16**)
 
 Schematics and full wiring diagrams are yet to come.
